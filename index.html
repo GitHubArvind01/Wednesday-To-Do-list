@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="icon" href="https://i.postimg.cc/kMjbQXNJ/Screenshot-2024-08-13-21-47-31-837-com-miui-gallery.png">
+
+    <style>
+        /* Your existing CSS */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td[contenteditable="true"] {
+            background-color: #f9f9f9;
+        }
+
+        .delete-icon {
+            cursor: pointer;
+            color: red;
+        }
+
+        .delete-icon:hover {
+            color: darkred;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Webnesday Task</h1>
+        <table id="taskTable">
+            <tr>
+                <th>Time</th>
+                <th>Task</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+        <button onclick="addRow()">Add Task</button>
+    </div>
+
+    <audio id="ringtone" src="ringtone-193209.mp3" preload="auto"></audio>
+
+    <script>
+        const PAGE_IDENTIFIER = 'temp-4-list'; // Unique identifier for this page
+
+        document.addEventListener("DOMContentLoaded", loadTasks);
+        setInterval(checkTimeAndNotify, 60000); // Check every minute
+
+        function deleteRow(element) {
+            const row = element.parentNode.parentNode;
+            row.remove();
+            saveTasks();
+        }
+
+        function addRow() {
+            const table = document.getElementById("taskTable");
+            const row = table.insertRow(-1);
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+            cell1.contentEditable = "true";
+            cell2.contentEditable = "true";
+            cell1.innerHTML = "<strong>New Time</strong>";
+            cell2.innerHTML = "<strong>New Task</strong>";
+            cell3.innerHTML = '<span class="delete-icon" onclick="deleteRow(this)">❌</span>';
+            saveTasks();
+        }
+
+        function saveTasks() {
+            const table = document.getElementById("taskTable");
+            const rows = table.rows;
+            let tasks = [];
+            for (let i = 1; i < rows.length; i++) {
+                const time = rows[i].cells[0].innerText.trim();
+                const task = rows[i].cells[1].innerText.trim();
+                tasks.push({ time, task });
+            }
+            localStorage.setItem(`tasks_${PAGE_IDENTIFIER}`, JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem(`tasks_${PAGE_IDENTIFIER}`)) || [
+                { time: "12:00 AM", task: "🛏️" },
+                { time: "5:45 AM", task: "🚿" },
+                { time: "7:00 AM", task: "🌐" },
+                { time: "10:00 AM", task: "🍽️🤳" },
+                { time: "1:00 PM", task: "📝" },
+                { time: "4:00 PM", task: "💻" },
+                { time: "6:00 PM", task: "🏋️‍♂️" },
+                { time: "8:00 PM", task: "🌃🍽️" },
+                { time: "10:00 PM", task: "📝" }
+            ];
+            const table = document.getElementById("taskTable");
+            for (let i = 0; i < tasks.length; i++) {
+                const row = table.insertRow(-1);
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2);
+                cell1.contentEditable = "true";
+                cell2.contentEditable = "true";
+                cell1.innerHTML = `<strong>${tasks[i].time}</strong>`;
+                cell2.innerHTML = `<strong>${tasks[i].task}</strong>`;
+                cell3.innerHTML = '<span class="delete-icon" onclick="deleteRow(this)">❌</span>';
+            }
+        }
+
+        document.getElementById("taskTable").addEventListener("input", saveTasks);
+
+        function checkTimeAndNotify() {
+            const table = document.getElementById("taskTable");
+            const rows = table.rows;
+            const currentTime = new Date();
+            const formattedTime = formatAMPM(currentTime);
+
+            for (let i = 1; i < rows.length; i++) {
+                const taskTime = rows[i].cells[0].innerText.trim();
+                if (taskTime === formattedTime) {
+                    const ringtone = document.getElementById("ringtone");
+                    ringtone.play();
+                    alert(`Time to: ${rows[i].cells[1].innerText}`);
+                    break;
+                }
+            }
+        }
+
+        function formatAMPM(date) {
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // The hour '0' should be '12'
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            const strTime = hours + ':' + minutes + ' ' + ampm;
+            return strTime;
+        }
+    </script>
+</body>
+</html>
