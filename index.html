@@ -128,15 +128,8 @@
 
         function loadTasks() {
             const tasks = JSON.parse(localStorage.getItem(`tasks_${PAGE_IDENTIFIER}`)) || [
-                { time: "12:00 AM", task: "🛏️" },
-                { time: "5:45 AM", task: "🚿" },
-                { time: "7:00 AM", task: "🌐" },
-                { time: "10:00 AM", task: "🍽️🤳" },
-                { time: "1:00 PM", task: "📝" },
-                { time: "4:00 PM", task: "💻" },
-                { time: "6:00 PM", task: "🏋️‍♂️" },
-                { time: "8:00 PM", task: "🌃🍽️" },
-                { time: "10:00 PM", task: "📝" }
+               { time: "12:00 AM", task: "abc" },
+            { time: "10:00 PM", task: "xyz" }
             ];
             const table = document.getElementById("taskTable");
             for (let i = 0; i < tasks.length; i++) {
